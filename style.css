@@ -1,0 +1,42 @@
+html {
+  font-family: Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.progress-container {
+  width: 103%;
+  height: 114%;
+  top: -7px;
+  left: -7px;
+  overflow: hidden;
+  z-index: -1;
+  position: absolute;
+  border-radius: 0.5rem;
+}
+
+svg.progress {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgb(243 244 246);
+  position: absolute;
+  stroke-dasharray: 400;
+  stroke-width: 6px;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.3s linear;
+  z-index: -1;
+}
+
+svg.progress rect {
+  width: 100%;
+  height: 100%;
+}
