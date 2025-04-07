@@ -3,45 +3,107 @@
 
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timer App</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/alpinejs" defer></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="bg-gray-100 min-h-screen p-6">
 
   <div x-data="timerApp()" x-init="timers = JSON.parse(localStorage.getItem('timers')) || []" class="max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold mb-4">Timer App</h1>
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-3xl font-bold mb-4">Timer App</h1>
+      <!-- add a timer icon button -->
+      <button @click="showAddTimer = !showAddTimer" class="text-white px-4 py-2 rounded">
+        <span class="sr-only">
+          Add Timer
+        </span>
+        <span class="w-14 h-14 inline-block text-blue-600 hover:bg-blue-100 rounded-full p-2  ">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  
+            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+            
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+            
+            <g id="SVGRepo_iconCarrier"> <g id="Calendar / Timer_Add"> <path id="Vector" d="M12 16V13M12 13V10M12 13H9M12 13H15M21 6L19 4M10 2H14M12 21C7.58172 21 4 17.4183 4 13C4 8.58172 7.58172 5 12 5C16.4183 5 20 8.58172 20 13C20 17.4183 16.4183 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </g> </g>
+            
+            </svg>
+        </span>
+  
+      </button>
+    </div>
 
     <!-- Timer Form -->
-    <div class="bg-white shadow-md rounded-lg p-4 mb-4">
-      <div class="flex flex-col md:flex-row gap-4">
-        <input x-model="newTimer.name" type="text" placeholder="Timer name" class="border p-2 rounded w-full" />
+    <div class="bg-white shadow-md rounded-lg p-4 mb-6 text-gray-600" x-show="showAddTimer || timers.length === 0" x-cloak x-transition>
+      <div class="flex flex-col gap-4">
+        <label class="text-gray-600">
+          <span>
+            Name
+          </span>
+          <input x-model="newTimer.name" type="text" placeholder="Timer name" class="border p-2 rounded w-full" />
 
-        <input x-model="newTimer.duration" type="number" min="1" placeholder="Duration (seconds)"
-          class="border p-2 rounded w-full" />
+        </label>
 
-        <select x-model="newTimer.color" class="border p-2 rounded w-full">
-          <option value="bg-blue-500">Blue</option>
-          <option value="bg-green-500">Green</option>
-          <option value="bg-yellow-500">Yellow</option>
-          <option value="bg-red-500">Red</option>
-          <option value="bg-purple-500">Purple</option>
-          <option value="bg-pink-500">Pink</option>
-          <option value="bg-gray-500">Gray</option>
-          <option value="bg-orange-500">Orange</option>
-          <option value="bg-teal-500">Teal</option>
-        </select>
+        <div class="flex gap-4">
+          <!-- duration -->
+           <label class="flex-1">
+            <span>
+              Duration
+            </span>
+           <input x-model="newTimer.duration" type="number" min="1" placeholder="Duration"
+            class="border p-2 rounded w-full" />
+           </label>
 
-        <select x-model="newTimer.sound" class="border p-2 rounded w-full">
-          <option value="beep">Beep</option>
-          <option value="alarm">Alarm</option>
-          <option value="chime">Chime</option>
-          <option value="ding">Ding</option>
-          <option value="buzz">Buzz</option>
-          <option value="ping">Ping</option>
-        </select>
+           <label class="flex-1">
+            <span>
+              Duration Unit
+            </span>
+             <select x-model="newTimer.unit" class="border p-2 rounded w-full">
+               <option value="seconds">Seconds</option>
+               <option value="minutes">Minutes</option>
+               <option value="hours">Hours</option>
+               <option value="days">Days</option>
+               <option value="weeks">Weeks</option>
+               <option value="months">Months</option>
+               <option value="years">Years</option>
+             </select>
+           </label>
+        </div>
+
+        <label>
+          <span>
+            Color
+          </span>
+          <select x-model="newTimer.color" class="border p-2 rounded w-full">
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+            <option value="red">Red</option>
+            <option value="purple">Purple</option>
+            <option value="pink">Pink</option>
+            <option value="gray">Gray</option>
+            <option value="orange">Orange</option>
+            <option value="teal">Teal</option>
+          </select>
+
+        </label>
+
+        <label>
+          <span>
+            Sound
+          </span>
+          <select x-model="newTimer.sound" class="border p-2 rounded w-full">
+            <option value="beep">Beep</option>
+            <option value="alarm">Alarm</option>
+            <option value="chime">Chime</option>
+            <option value="ding">Ding</option>
+            <option value="buzz">Buzz</option>
+            <option value="ping">Ping</option>
+          </select>
+        </label>
 
         <button @click="addTimer" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           Add Timer
@@ -52,16 +114,68 @@
     <!-- Timer List -->
     <div class="space-y-4">
       <template x-for="(timer, index) in timers" :key="index">
-        <div :class="timer.color" class="p-4 rounded-lg text-white flex justify-between items-center">
-          <div>
-            <h2 class="text-xl font-bold" x-text="timer.name"></h2>
-            <p>Time Left: <span x-text="formatTime(timer.timeLeft)"></span></p>
-            <p>Sound: <span x-text="timer.sound"></span></p>
+        <div :data-id="timer.id" :class="timer.classes" class="p-4 rounded-lg text-white relative flex justify-between items-center border-4 border-transparent" x-transition>
+
+
+
+          <div class="progress-container" :class="`bg-${timer.color}-600`">
+            <svg class="progress" :class="`stroke-${timer.color}-600`" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <rect x="0" y="0" rx="0" ry="0" />
+            </svg>
           </div>
-          <div class="flex items-center bg-gray-200 rounded-full py-2 px-6">
+            
+          <div class="pr-4 py-1 group">
+            <div class="flex items-center gap-3 ">
+              <h2 class="text-xl font-bold" x-text="timer.name"></h2>
+              <button @click="removeTimer(index)" class="inline-flex rounded hover:scale-105 hidden group-hover:inline-flex">
+                <span class="sr-only">Remove</span>
+                <span class="w-5 h-5 inline-block text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  
+                    <g id="SVGRepo_bgCarrier" stroke-width="0" />
+  
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
+  
+                    <g id="SVGRepo_iconCarrier" class="text-red-200 group-hover:text-red-400">
+                      <path
+                        d="M3 6.52381C3 6.12932 3.32671 5.80952 3.72973 5.80952H8.51787C8.52437 4.9683 8.61554 3.81504 9.45037 3.01668C10.1074 2.38839 11.0081 2 12 2C12.9919 2 13.8926 2.38839 14.5496 3.01668C15.3844 3.81504 15.4756 4.9683 15.4821 5.80952H20.2703C20.6733 5.80952 21 6.12932 21 6.52381C21 6.9183 20.6733 7.2381 20.2703 7.2381H3.72973C3.32671 7.2381 3 6.9183 3 6.52381Z"
+                        fill="currentColor" />
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M11.5956 22H12.4044C15.1871 22 16.5785 22 17.4831 21.1141C18.3878 20.2281 18.4803 18.7749 18.6654 15.8685L18.9321 11.6806C19.0326 10.1036 19.0828 9.31511 18.6289 8.81545C18.1751 8.31579 17.4087 8.31579 15.876 8.31579H8.12404C6.59127 8.31579 5.82488 8.31579 5.37105 8.81545C4.91722 9.31511 4.96744 10.1036 5.06788 11.6806L5.33459 15.8685C5.5197 18.7749 5.61225 20.2281 6.51689 21.1141C7.42153 22 8.81289 22 11.5956 22ZM10.2463 12.1885C10.2051 11.7546 9.83753 11.4381 9.42537 11.4815C9.01321 11.5249 8.71251 11.9117 8.75372 12.3456L9.25372 17.6087C9.29494 18.0426 9.66247 18.3591 10.0746 18.3157C10.4868 18.2724 10.7875 17.8855 10.7463 17.4516L10.2463 12.1885ZM14.5746 11.4815C14.9868 11.5249 15.2875 11.9117 15.2463 12.3456L14.7463 17.6087C14.7051 18.0426 14.3375 18.3591 13.9254 18.3157C13.5132 18.2724 13.2125 17.8855 13.2537 17.4516L13.7537 12.1885C13.7949 11.7546 14.1625 11.4381 14.5746 11.4815Z"
+                        fill="currentColor" />
+                    </g>
+  
+                  </svg>
+                </span>
+  
+              </button>
+            </div>
+            <p class="text-gray-200">
+              <span x-text="timer.durationInitial"></span> <span x-text="singularizeUnit(timer)"></span>
+            </p>
+            <p class="text-gray-200">Sound: <span x-text="timer.sound"></span></p>
+          </div>
+
+          <div class="flex flex-col items-center">
+            <p x-show="timer.isPlaying || timer.isPaused" class="text-xl font-bold font-mono">
+              <span class="w-4 h-4 inline-block text-gray-200" :class="timer.isPlaying ? 'animate-pulse' : ''">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="currentColor" version="1.1" id="Capa_1" viewBox="0 0 473.068 473.068" xml:space="preserve" stroke="#000000">
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                  <g id="SVGRepo_iconCarrier"> <g> <g id="Layer_2_31_"> <g> <path d="M355.507,181.955c8.793-6.139,29.39-20.519,29.39-55.351v-71.77h9.814c4.49,0,8.17-3.679,8.17-8.169v-38.5 c0-4.49-3.681-8.165-8.17-8.165H78.351c-4.495,0-8.165,3.675-8.165,8.165v38.5c0,4.491,3.67,8.169,8.165,8.169h9.82v73.071 c0,34.499,10.502,42.576,29.074,53.89l80.745,49.203v20.984c-20.346,12.23-73.465,44.242-80.434,49.107 c-8.793,6.135-29.384,20.51-29.384,55.352v61.793h-9.82c-4.495,0-8.165,3.676-8.165,8.166v38.498c0,4.49,3.67,8.17,8.165,8.17 h316.361c4.49,0,8.17-3.68,8.17-8.17V426.4c0-4.49-3.681-8.166-8.17-8.166h-9.814v-63.104c0-34.493-10.508-42.572-29.069-53.885 l-80.745-49.202v-20.987C295.417,218.831,348.537,186.822,355.507,181.955z M252.726,272.859l87.802,53.5 c6.734,4.109,10.333,6.373,12.001,9.002c1.991,3.164,2.963,9.627,2.963,19.768v63.104H117.574v-61.793 c0-19.507,9.718-26.289,16.81-31.242c5.551-3.865,54.402-33.389,85.878-52.289c4.428-2.658,7.135-7.441,7.135-12.611v-37.563 c0-5.123-2.671-9.883-7.053-12.55l-87.54-53.339l-0.265-0.165c-6.741-4.105-10.336-6.369-11.998-9.009 c-1.992-3.156-2.968-9.626-2.968-19.767V54.835h237.918v71.77c0,19.5-9.718,26.288-16.814,31.235 c-5.546,3.872-54.391,33.395-85.869,52.295c-4.427,2.658-7.134,7.442-7.134,12.601v37.563 C245.675,265.431,248.346,270.188,252.726,272.859z"/> <path d="M331.065,154.234c0,0,5.291-4.619-2.801-3.299c-19.178,3.115-53.079,15.133-92.079,15.133s-57-11-82.507-11.303 c-5.569-0.066-5.456,3.629,0.937,7.391c6.386,3.758,63.772,35.681,71.671,40.08c7.896,4.389,12.417,4.05,20.786,0 C259.246,196.334,331.065,154.234,331.065,154.234z"/> <path d="M154.311,397.564c-6.748,6.209-9.978,10.713,5.536,10.713c12.656,0,139.332,0,155.442,0 c16.099,0,9.856-5.453,2.311-12.643c-14.576-13.883-45.416-23.566-82.414-23.566 C196.432,372.068,169.342,383.723,154.311,397.564z"/> </g> </g> </g> </g>
+                  </svg>
+              </span>
+              <span x-text="formatTime(timer.timeLeft)"></span>
+            </p>
+            <p x-show="timer.isPlaying || timer.isPaused" class="text-sm font-mono text-gray-300">
+              <span x-text="timer.endsAt"></span>
+            </p>
+            
+          </div>
+          <div class="flex items-center bg-gray-200 rounded-full py-3 px-6">
             <button 
             x-show="timer.isPlayingSound" x-cloak @click="stopAlarm(index)"
-            class="px-1 py-2 rounded hover:scale-105">
+            class="px-0 py-3 rounded hover:scale-105 leading-[10px]">
               <span class="sr-only">Stop sound</span>
               <span class="w-8 h-8 inline-block">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#cc7b7b" version="1.1" id="Capa_1" viewBox="0 0 336.659 336.659" xml:space="preserve" stroke="#cc7b7b">
@@ -75,9 +189,9 @@
                   </svg>
               </span>
             </button>
-            <div class="flex items-center" x-show="!timer.isPlayingSound" x-cloak>
+            <div class="flex items-center gap-4" x-show="!timer.isPlayingSound" x-cloak>
               <button x-show="!timer.isPlaying" x-cloak @click="startTimer(index)"
-                class="px-1 py-2 rounded hover:scale-105">
+                class="px-0 py-3 rounded hover:scale-105 leading-[10px]">
                 <span class="sr-only">
                   Start
                 </span>
@@ -109,7 +223,7 @@
               </button>
 
               <button @click="pauseTimer(index)" x-show="timer.isPlaying" x-cloak
-                class="px-1 py-2 rounded ml-2 hover:scale-105">
+                class="px-0 py-3 rounded hover:scale-105 leading-[10px]">
                 <span class="sr-only">Pause</span>
                 <span class="w-8 h-8 inline-block">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
@@ -130,7 +244,7 @@
                   </svg>
                 </span>
               </button>
-              <button @click="resetTimer(index)" class="px-1 py-2 rounded ml-2 hover:scale-105">
+              <button @click="resetTimer(index)" class="px-0 py-3 rounded hover:scale-105 leading-[10px]" x-show="timer.isPlaying || timer.isPaused" x-cloak>
                 <span class="sr-only">Reset</span>
                 <span class="w-8 h-8 inline-block">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
@@ -147,28 +261,6 @@
   
                   </svg>
                 </span>
-              </button>
-              <button @click="removeTimer(index)" class="px-1 py-2 rounded hover:scale-105 ml-2">
-                <span class="sr-only">Remove</span>
-                <span class="w-9 h-9 inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-  
-                    <g id="SVGRepo_bgCarrier" stroke-width="0" />
-  
-                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
-  
-                    <g id="SVGRepo_iconCarrier">
-                      <path
-                        d="M3 6.52381C3 6.12932 3.32671 5.80952 3.72973 5.80952H8.51787C8.52437 4.9683 8.61554 3.81504 9.45037 3.01668C10.1074 2.38839 11.0081 2 12 2C12.9919 2 13.8926 2.38839 14.5496 3.01668C15.3844 3.81504 15.4756 4.9683 15.4821 5.80952H20.2703C20.6733 5.80952 21 6.12932 21 6.52381C21 6.9183 20.6733 7.2381 20.2703 7.2381H3.72973C3.32671 7.2381 3 6.9183 3 6.52381Z"
-                        fill="#e27c6a" />
-                      <path fill-rule="evenodd" clip-rule="evenodd"
-                        d="M11.5956 22H12.4044C15.1871 22 16.5785 22 17.4831 21.1141C18.3878 20.2281 18.4803 18.7749 18.6654 15.8685L18.9321 11.6806C19.0326 10.1036 19.0828 9.31511 18.6289 8.81545C18.1751 8.31579 17.4087 8.31579 15.876 8.31579H8.12404C6.59127 8.31579 5.82488 8.31579 5.37105 8.81545C4.91722 9.31511 4.96744 10.1036 5.06788 11.6806L5.33459 15.8685C5.5197 18.7749 5.61225 20.2281 6.51689 21.1141C7.42153 22 8.81289 22 11.5956 22ZM10.2463 12.1885C10.2051 11.7546 9.83753 11.4381 9.42537 11.4815C9.01321 11.5249 8.71251 11.9117 8.75372 12.3456L9.25372 17.6087C9.29494 18.0426 9.66247 18.3591 10.0746 18.3157C10.4868 18.2724 10.7875 17.8855 10.7463 17.4516L10.2463 12.1885ZM14.5746 11.4815C14.9868 11.5249 15.2875 11.9117 15.2463 12.3456L14.7463 17.6087C14.7051 18.0426 14.3375 18.3591 13.9254 18.3157C13.5132 18.2724 13.2125 17.8855 13.2537 17.4516L13.7537 12.1885C13.7949 11.7546 14.1625 11.4381 14.5746 11.4815Z"
-                        fill="#e27c6a" />
-                    </g>
-  
-                  </svg>
-                </span>
-  
               </button>
             </div>
 
@@ -187,144 +279,8 @@
   <audio id="buzz" src="sounds/buzz.wav"></audio>
   <audio id="ping" src="sounds/ping.wav"></audio>
 
-  <script>
-    function timerApp() {
-      return {
-        timers: [],
-        newTimer: {
-          name: '',
-          duration: '',
-          color: 'bg-blue-500',
-          sound: 'beep.mp3',
-          interval: null,
-          timeLeft: 0,
-          isPlaying: false,
-          isPlayingSound: false
-        },
-
-        formatTime(seconds) {
-          const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
-          const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-          const secs = (seconds % 60).toString().padStart(2, '0');
-          return `${hrs}:${mins}:${secs}`;
-        },
-
-        addTimer() {
-          if (!this.newTimer.name) {
-            this.newTimer.name = 'TIMER NAME';
-          };
-          if (!this.newTimer.duration) {
-            this.newTimer.duration = 4;
-          };
-
-
-          this.timers.push({
-            name: this.newTimer.name,
-            timeLeft: parseInt(this.newTimer.duration),
-            duration: parseInt(this.newTimer.duration),
-            color: this.newTimer.color,
-            sound: this.newTimer.sound,
-            isPlaying: false,
-            isPlayingSound: false,
-            interval: null
-          });
-
-          this.newTimer.name = '';
-          this.newTimer.duration = '';
-
-          console.log('Timers:', this.timers);
-          localStorage.setItem('timers', JSON.stringify(this.timers));
-        },
-
-        stopAlarm(index) {
-          const timer = this.timers[index];
-          if (timer.isPlayingSound) {
-            this.stopSound(timer.sound);
-            timer.isPlayingSound = false;
-          }
-        },
-
-        startTimer(index) {
-          const timer = this.timers[index];
-          if (timer.interval) {
-            return;
-          } else {
-            timer.isPlaying = true;
-          }
-
-          timer.interval = setInterval(() => {
-            if (timer.timeLeft > 0) {
-              timer.timeLeft--;
-            } else {
-              clearInterval(timer.interval);
-              timer.interval = null;
-              timer.timeLeft = timer.duration;
-              timer.isPlaying = false;
-              timer.isPlayingSound = true;
-              this.playSound(timer.sound);
-
-            }
-          }, 1000);
-        },
-
-        pauseTimer(index) {
-          const timer = this.timers[index];
-          if (timer.interval) {
-            clearInterval(timer.interval);
-            timer.interval = null;
-            timer.isPlaying = false;
-          }
-        },
-        resetTimer(index) {
-          const timer = this.timers[index];
-          if (timer.interval) {
-            clearInterval(timer.interval);
-            timer.interval = null;
-            timer.isPlaying = false;
-          }
-          timer.timeLeft = parseInt(this.timer.duration);
-        },
-
-        playSound(sound) {
-          const audio = document.getElementById(sound.split('.')[0]);
-
-          if (audio) {
-            if (audio.dataset.loop === "true") {
-              // If already playing in loop, pause and reset
-              audio.pause();
-              audio.currentTime = 0;
-              audio.dataset.loop = "false";
-            } else {
-              // Play in loop
-              audio.loop = true;
-              audio.play();
-              audio.dataset.loop = "true";
-            }
-          }
-        },
-
-        stopSound(sound) {
-          const audio = document.getElementById(sound.split('.')[0]);
-
-          if (audio) {
-            audio.pause();
-            audio.currentTime = 0;
-            audio.loop = false;
-            audio.dataset.loop = "false";
-          }
-        },
-
-        removeTimer(index) {
-          clearInterval(this.timers[index].interval);
-          this.timers.splice(index, 1);
-          localStorage.setItem('timers', JSON.stringify(this.timers));
-          if (this.timers.length === 0) {
-            localStorage.removeItem('timers');
-          }
-        }
-      };
-    }
-  </script>
+  <!-- Include import ./main.js -->
+  <script src="./main.js"></script>
 
 </body>
 
