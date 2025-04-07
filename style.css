@@ -13,10 +13,10 @@ body {
 }
 
 .progress-container {
-  width: 103%;
+  width: 102.5%;
   height: 114%;
-  top: -7px;
-  left: -7px;
+  top: -7.4px;
+  left: -8px;
   overflow: hidden;
   z-index: -1;
   position: absolute;
