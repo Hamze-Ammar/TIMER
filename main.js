@@ -1,0 +1,240 @@
+function timerApp() {
+  return {
+    showAddTimer: false,
+    timers: [],
+    newTimer: {
+      id: null,
+      name: '',
+      duration: '',
+      durationInitial: '',
+      unit: '',
+      color: 'blue',
+      classes: '',
+      sound: 'beep',
+      interval: null,
+      timeLeft: 0,
+      endsAt: null,
+      isPaused: false,
+      isPlaying: false,
+      isPlayingSound: false
+    },
+    init: function() {
+      this.$watch('newTimer', (newValue) => {
+        console.log('New Timer:', newValue);
+      });
+    },
+    formatTime(seconds) {
+      const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+      const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+      const secs = (seconds % 60).toString().padStart(2, '0');
+      return `${hrs}:${mins}:${secs}`;
+    },
+
+    addTimer() {
+      console.log('Adding timer:', this.newTimer);
+      
+      if (!this.newTimer.name) {
+        this.newTimer.name = 'TIMER NAME';
+      };
+      if (!this.newTimer.duration) {
+        this.newTimer.duration = 4;
+      };
+      if (!this.newTimer.unit) {
+        this.newTimer.unit = 'seconds';
+      };
+      if (!this.newTimer.durationInitial) {
+        this.newTimer.durationInitial = this.newTimer.duration;
+      };
+
+      if (this.newTimer.unit === 'minutes') {
+        this.newTimer.duration *= 60;
+      } else if (this.newTimer.unit === 'hours') {
+        this.newTimer.duration *= 3600;
+      }
+      if (this.newTimer.unit === 'seconds') {
+        this.newTimer.duration *= 1;
+      } else if (this.newTimer.unit === 'days') {
+        this.newTimer.duration *= 86400;
+      }
+      if (this.newTimer.unit === 'weeks') {
+        this.newTimer.duration *= 604800;
+      } else if (this.newTimer.unit === 'months') {
+        this.newTimer.duration *= 2592000;
+      }
+      if (this.newTimer.unit === 'years') {
+        this.newTimer.duration *= 31536000;
+      }
+      // validate duration
+      if (this.newTimer.duration <= 0) {
+        alert('Please enter a valid duration');
+        return;
+      }
+
+      console.log('New Timer:', this.newTimer);
+      // generate tailwind classes for colors where each timer has one color assigned red, green..
+      const classes = `bg-${this.newTimer.color}-500 text-white font-bold py-2 px-4 rounded`;
+
+      this.timers.push({
+        id: Math.random().toString(36).substr(2, 9),
+        name: this.newTimer.name,
+        timeLeft: parseInt(this.newTimer.duration),
+        duration: parseInt(this.newTimer.duration),
+        color: this.newTimer.color,
+        classes: classes,
+        sound: this.newTimer.sound,
+        durationInitial: this.newTimer.durationInitial,
+        unit: this.newTimer.unit,
+        isPaused: false,
+        isPlaying: false,
+        isPlayingSound: false,
+        interval: null
+      });
+
+      this.newTimer.name = '';
+      this.newTimer.duration = '';
+      this.newTimer.durationInitial = '';
+
+      console.log('Timers:', this.timers);
+      localStorage.setItem('timers', JSON.stringify(this.timers));
+    },
+
+    stopAlarm(index) {
+      const timer = this.timers[index];
+      if (timer.isPlayingSound) {
+        this.stopSound(timer.sound);
+        timer.isPlayingSound = false;
+      }
+    },
+
+    singularizeUnit(timer) {
+      console.log('timer:', timer);
+      
+      if (timer.durationInitial.toString() === "1") {
+        return timer.unit.slice(0, -1);
+      }
+      return timer.unit;
+    },
+
+    startTimer(index) {
+      const timer = this.timers[index];
+      if (timer.interval) {
+        return;
+      } else {
+        timer.isPlaying = true;
+        timer.isPaused = false;
+        timer.isPlayingSound = false;
+        timer.endsAt = this.getFormattedEndsAt(timer);
+      }
+
+      const timerEl = document.querySelector(`[data-id='${timer.id}']`);
+      console.log('timerEl:', timerEl);
+      const timerProgress = timerEl.querySelector('svg.progress');
+      
+      timer.interval = setInterval(() => {
+        if (timer.timeLeft > 0) {
+          timer.timeLeft--;
+
+          const totalTime = timer.duration;
+          const timeLeft = timer.timeLeft;
+          const percent = (timeLeft / totalTime) * 100;
+          const strokeDasharray = 400;
+          const strokeDashoffset = strokeDasharray - (percent / 100) * strokeDasharray;
+          timerProgress.style.strokeDashoffset = strokeDashoffset;
+          
+        } else {
+          clearInterval(timer.interval);
+          timer.interval = null;
+          timer.timeLeft = timer.duration;
+          timer.isPlaying = false;
+          timer.isPlayingSound = true;
+          this.playSound(timer.sound);
+
+        }
+      }, 1000);
+
+    },
+
+    getFormattedEndsAt(timer) {
+      const endDate = new Date(Date.now() + timer.timeLeft * 1000);
+    
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+      const month = months[endDate.getMonth()];
+      const day = endDate.getDate();
+      const hours = String(endDate.getHours()).padStart(2, '0');
+      const minutes = String(endDate.getMinutes()).padStart(2, '0');
+      const seconds = String(endDate.getSeconds()).padStart(2, '0');
+    
+      return `${month}, ${day} ${hours}:${minutes}:${seconds}`;
+    },
+
+    pauseTimer(index) {
+      const timer = this.timers[index];
+      if (timer.interval) {
+        clearInterval(timer.interval);
+        timer.interval = null;
+        timer.isPlaying = false;
+        timer.isPaused = true;
+      }
+    },
+    resetTimer(index) {
+      const timer = this.timers[index];
+      if (timer.interval) {
+        clearInterval(timer.interval);
+        timer.interval = null;
+        timer.isPlaying = false;
+      }
+      timer.isPaused = false;
+      timer.timeLeft = parseInt(this.timer.duration);
+    },
+
+    playSound(sound) {
+      const audio = document.getElementById(sound.split('.')[0]);
+
+      if (audio) {
+        if (audio.dataset.loop === "true") {
+          // If already playing in loop, pause and reset
+          audio.pause();
+          audio.currentTime = 0;
+          audio.dataset.loop = "false";
+        } else {
+          // Play in loop
+          audio.loop = true;
+          audio.play();
+          audio.dataset.loop = "true";
+        }
+      }
+    },
+
+    stopSound(sound) {
+      const audio = document.getElementById(sound.split('.')[0]);
+
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.loop = false;
+        audio.dataset.loop = "false";
+      }
+    },
+
+    removeTimer(index) {
+      // if(confirm('Are you sure you want to delete this timer?')) {
+        const timer = this.timers[index];
+        if (timer.interval) {
+          clearInterval(timer.interval);
+          timer.interval = null;
+        }
+        if (timer.isPlayingSound) {
+          this.stopSound(timer.sound);
+          timer.isPlayingSound = false;
+        }
+        this.timers.splice(index, 1);
+        localStorage.setItem('timers', JSON.stringify(this.timers));
+        if (this.timers.length === 0) {
+          localStorage.removeItem('timers');
+        }
+      // } 
+    }
+  };
+}
