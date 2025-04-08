@@ -1,7 +1,9 @@
 function timerApp() {
   return {
     showAddTimer: false,
+    requestResume: false,
     timers: [],
+    logs: [],
     newTimer: {
       id: null,
       name: '',
@@ -13,17 +15,81 @@ function timerApp() {
       sound: 'beep',
       interval: null,
       timeLeft: 0,
-      endsAt: null,
+      endsAtFormatted: null,
+      endsAt: null, // timestamp
       isPaused: false,
       isPlaying: false,
-      isPlayingSound: false
+      isPlayingSound: false,
+      showLogs: false,
     },
     init: function() {
-      this.$watch('newTimer', (newValue) => {
-        console.log('New Timer:', newValue);
+      this.timers = JSON.parse(localStorage.getItem('timers')) || [];
+      this.logs = JSON.parse(localStorage.getItem('timersLogs')) || [];
+
+      // play sound if timer is playing
+      this.timers.forEach((timer, index) => {
+        
+        if (timer.isPlayingSound) {
+          // this.hardResetTimer(timer);
+        }
+        // if timer is paused, set timeLeft to duration
+        if (timer.isPlaying) {
+          timer.interval = null;
+
+          // get timeLeft from endsAt
+          if (timer.endsAt) {
+            const timeLeft = Math.floor((timer.endsAt - Date.now()) / 1000);
+            timer.timeLeft = timeLeft;
+            timer.endsAtFormatted = this.getFormattedEndsAt(timer);
+          } else {
+            timer.timeLeft = timer.duration;
+          }
+          this.$nextTick(() => {
+            this.startTimer(timer);
+          });
+
+          this.requestResume = true;
+        }
+
+      });
+      
+
+      this.$watch('timers', (newValue) => {
+        this.save();
+      });
+      this.$watch('logs', (newValue) => {
+        this.saveLogs();
       });
     },
+    save() {
+      console.log('save');
+      
+      localStorage.setItem('timers', JSON.stringify(this.timers));
+    },
+
+    closeResumeModal() {
+      console.log('closeResumeModal');
+      
+      this.requestResume = false;
+    },
+
+    isNegative(seconds) {
+      if (seconds === null || seconds === undefined) {
+        return false;
+      }
+      return seconds < 0;
+    },
+
     formatTime(seconds) {
+      console.log('formatTime', seconds);
+      if (seconds === null || seconds === undefined) {
+        return '';
+      }
+      if (seconds < 0) {
+        seconds = Math.abs(seconds);
+        return `-${this.formatTime(seconds)}`;
+      }
+      
       const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
       const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
       const secs = (seconds % 60).toString().padStart(2, '0');
@@ -70,11 +136,9 @@ function timerApp() {
         return;
       }
 
-      console.log('New Timer:', this.newTimer);
-      // generate tailwind classes for colors where each timer has one color assigned red, green..
       const classes = `bg-${this.newTimer.color}-500 text-white font-bold py-2 px-4 rounded`;
 
-      this.timers.push({
+      const timer = {
         id: Math.random().toString(36).substr(2, 9),
         name: this.newTimer.name,
         timeLeft: parseInt(this.newTimer.duration),
@@ -88,51 +152,54 @@ function timerApp() {
         isPlaying: false,
         isPlayingSound: false,
         interval: null
-      });
+      }
+      this.timers.push(timer);
 
       this.newTimer.name = '';
       this.newTimer.duration = '';
       this.newTimer.durationInitial = '';
 
-      console.log('Timers:', this.timers);
-      localStorage.setItem('timers', JSON.stringify(this.timers));
+      this.showAddTimer = false;
+      this.log(timer, 'add');
     },
 
-    stopAlarm(index) {
-      const timer = this.timers[index];
+    stopAlarm(timer) {
       if (timer.isPlayingSound) {
         this.stopSound(timer.sound);
-        timer.isPlayingSound = false;
       }
+      this.hardResetTimer(timer);
     },
 
     singularizeUnit(timer) {
-      console.log('timer:', timer);
-      
       if (timer.durationInitial.toString() === "1") {
         return timer.unit.slice(0, -1);
       }
       return timer.unit;
     },
 
-    startTimer(index) {
-      const timer = this.timers[index];
+    startTimer(timer) {
       if (timer.interval) {
         return;
       } else {
         timer.isPlaying = true;
         timer.isPaused = false;
         timer.isPlayingSound = false;
-        timer.endsAt = this.getFormattedEndsAt(timer);
+        timer.endsAt = Date.now() + ( timer.timeLeft * 1000 );
+        timer.endsAtFormatted = this.getFormattedEndsAt(timer);
+
+        this.log(timer, 'start');
       }
 
       const timerEl = document.querySelector(`[data-id='${timer.id}']`);
-      console.log('timerEl:', timerEl);
+      if(!timerEl) {
+        console.error('Timer element not found');
+        return;
+      }
       const timerProgress = timerEl.querySelector('svg.progress');
       
       timer.interval = setInterval(() => {
-        if (timer.timeLeft > 0) {
-          timer.timeLeft--;
+        timer.timeLeft--;
+        if (timer.timeLeft >= 0) {
 
           const totalTime = timer.duration;
           const timeLeft = timer.timeLeft;
@@ -141,17 +208,33 @@ function timerApp() {
           const strokeDashoffset = strokeDasharray - (percent / 100) * strokeDasharray;
           timerProgress.style.strokeDashoffset = strokeDashoffset;
           
-        } else {
-          clearInterval(timer.interval);
-          timer.interval = null;
-          timer.timeLeft = timer.duration;
+        } else if( !timer.isPlayingSound) {
           timer.isPlaying = false;
           timer.isPlayingSound = true;
           this.playSound(timer.sound);
+        }
 
+        if( timer.timeLeft < 0 && !timer.isNegative) {
+          timer.isNegative = true;
         }
       }, 1000);
 
+    },
+
+    hardResetTimer(timer) {
+      if (timer.interval) {
+        clearInterval(timer.interval);
+        timer.interval = null;
+        timer.isPlaying = false;
+      }
+      timer.isPaused = false;
+      timer.timeLeft = parseInt(timer.duration);
+      timer.endsAt = null;
+      timer.endsAtFormatted = null;
+      timer.isPlayingSound = false;
+      timer.isNegative = false;
+
+      this.log(timer, 'stop');
     },
 
     getFormattedEndsAt(timer) {
@@ -176,17 +259,9 @@ function timerApp() {
         timer.interval = null;
         timer.isPlaying = false;
         timer.isPaused = true;
+
+        this.log(timer, 'pause');
       }
-    },
-    resetTimer(index) {
-      const timer = this.timers[index];
-      if (timer.interval) {
-        clearInterval(timer.interval);
-        timer.interval = null;
-        timer.isPlaying = false;
-      }
-      timer.isPaused = false;
-      timer.timeLeft = parseInt(this.timer.duration);
     },
 
     playSound(sound) {
@@ -219,7 +294,7 @@ function timerApp() {
     },
 
     removeTimer(index) {
-      // if(confirm('Are you sure you want to delete this timer?')) {
+      if(confirm('Are you sure you want to delete this timer?')) {
         const timer = this.timers[index];
         if (timer.interval) {
           clearInterval(timer.interval);
@@ -234,7 +309,51 @@ function timerApp() {
         if (this.timers.length === 0) {
           localStorage.removeItem('timers');
         }
-      // } 
+
+        this.clearTimerLogs(timer);
+      } 
+    },
+
+    clearTimerLogs(timer){
+      const timerId = timer.id;
+      this.logs = this.logs.filter(log => log.timerId !== timerId);
+      this.saveLogs();
+    },
+
+    log(timer, action) {
+      const timestamp = Date.now();
+      let msg = '';
+      switch (action) {
+        case 'add':
+          msg = `Added timer: ${timer.name} (${timer.duration} ${timer.unit})`;
+          break;
+        case 'start':
+          msg = `Started timer: ${timer.name}`;
+          break;
+        case 'pause':
+          msg = `Paused timer: ${timer.name}`;
+          break;
+        case 'resume':
+          msg = `Resumed timer: ${timer.name}`;
+          break;
+        case 'stop':
+          msg = `Stopped timer: ${timer.name}`;
+          break;
+        default:
+          msg = `Unknown action: ${action}`;
+          break;
+      }
+
+      this.logs.push({
+        timestamp: timestamp,
+        action: action,
+        msg: msg,
+        timerId: timer.id,
+      });
+    },
+
+    saveLogs() {
+      localStorage.setItem('timersLogs', JSON.stringify(this.logs));
     }
   };
 }
