@@ -33,7 +33,7 @@ function timerApp() {
           // this.hardResetTimer(timer);
         }
         // if timer is paused, set timeLeft to duration
-        if (timer.isPlaying) {
+        if (timer.isPlaying || timer.isPlayingSound) {
           timer.interval = null;
 
           // get timeLeft from endsAt
@@ -60,6 +60,10 @@ function timerApp() {
       this.$watch('logs', (newValue) => {
         this.saveLogs();
       });
+    },
+    getTimerLogs(timer) {
+      const timerId = timer.id;
+      return this.logs.filter(log => log.timerId === timerId);
     },
     save() {
       console.log('save');
@@ -136,7 +140,7 @@ function timerApp() {
         return;
       }
 
-      const classes = `bg-${this.newTimer.color}-500 text-white font-bold py-2 px-4 rounded`;
+      const classes = `bg-${this.newTimer.color}-500 text-white font-bold rounded`;
 
       const timer = {
         id: Math.random().toString(36).substr(2, 9),
