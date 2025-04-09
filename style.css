@@ -15,10 +15,10 @@ body {
 }
 
 .progress-container {
-  width: 102.5%;
-  height: 114%;
-  top: -7.4px;
-  left: -8px;
+  width: 106.5%;
+  height: 129.3%;
+  top: -15px;
+  left: -21px;
   overflow: hidden;
   z-index: -1;
   position: absolute;
@@ -45,11 +45,8 @@ svg.progress rect {
 .log-item {
   position: relative;
   margin-left: 24px;
-  /* padding: 1rem; */
-  /* margin: 0.5rem 0; */
-  /* background-color: #fff; */
-  /* border-radius: 0.5rem; */
-  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 .log-item::before {
   content: '';
