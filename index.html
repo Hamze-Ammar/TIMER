@@ -98,13 +98,13 @@
             Color
           </span>
           <select x-model="newTimer.color" class="border p-2 rounded w-full">
+            <option value="gray">Gray</option>
             <option value="blue">Blue</option>
             <option value="green">Green</option>
             <option value="yellow">Yellow</option>
             <option value="red">Red</option>
             <option value="purple">Purple</option>
             <option value="pink">Pink</option>
-            <option value="gray">Gray</option>
             <option value="orange">Orange</option>
             <option value="teal">Teal</option>
           </select>
@@ -346,7 +346,7 @@
               <div class="absolute right-2 top-2 p-1 z-10 flex items-center gap-2">
 
                 <!-- Clear logs -->
-                <button class="rounded hover:scale-105">
+                <button class="rounded hover:scale-105" @click="clearTimerLogs(timer.id)">
                   <span class="sr-only">Clear logs</span>
                   <span class="w-5 h-5 inline-block text-gray-600 hover:text-gray-800">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -387,14 +387,17 @@
                 <template x-for="(log, index) in getTimerLogs(timer)" :key="index">
                   <div x-show="log.timerId === timer.id" class="flex items-center gap-3 log-item text-xs font-normal">
                     <span class="absolute left-0 top-0 w-1 h-full w-auto left-[-34px] z-10 p-1 pt-0">
-                      <img class="w-4 h-4 text-white bg-gray-100 rounder-full" src="assets/add.svg" alt="">
+                      <img class="w-4 h-4 text-white bg-gray-100 rounder-full" :src="`assets/${log.action}.svg`" alt="">
                     </span>
-                    <span x-text="formatDate(log.timestamp)"></span>
-                    <span> - </span>
-                    <span x-text="log.action"></span>
+                    <span x-html="formatDateHTML(log.timestamp)"></span>
+                    <span>-</span>
                     <span x-text="log.msg"></span>
                   </div>
                 </template>
+
+                <div x-show="getTimerLogs(timer).length === 0" class="text-center text-gray-500">
+                  Logs have been cleared.
+                </div>
               </div>
             </div>
           </div>

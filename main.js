@@ -10,7 +10,7 @@ function timerApp() {
       duration: '',
       durationInitial: '',
       unit: '',
-      color: 'blue',
+      color: 'gray',
       classes: '',
       sound: 'beep',
       interval: null,
@@ -63,11 +63,11 @@ function timerApp() {
     },
     getTimerLogs(timer) {
       const timerId = timer.id;
-      return this.logs.filter(log => log.timerId === timerId);
+      return this.logs
+        .filter(log => log.timerId === timerId)
+        .sort((a, b) => b.timestamp - a.timestamp);
     },
     save() {
-      console.log('save');
-      
       localStorage.setItem('timers', JSON.stringify(this.timers));
     },
 
@@ -85,7 +85,6 @@ function timerApp() {
     },
 
     formatTime(seconds) {
-      console.log('formatTime', seconds);
       if (seconds === null || seconds === undefined) {
         return '';
       }
@@ -167,11 +166,15 @@ function timerApp() {
       this.log(timer, 'add');
     },
 
-    formatDate(timestamp) {
+    formatDateHTML(timestamp) {
       const date = new Date(timestamp);
-      const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-      return date.toLocaleDateString('en-US', options);
-    },
+    
+      const month = date.toLocaleString('en-US', { month: 'short' }); // e.g., "Apr"
+      const day = date.getDate().toString().padStart(2, '0');         // e.g., "10"
+      const time = date.toLocaleTimeString('en-US', { hour12: false }); // e.g., "14:30:59"
+    
+      return `<span class="date-part">${month} ${day}</span><span>, </span><span class="time-part">${time}</span>`;
+    },    
 
     stopAlarm(timer) {
       if (timer.isPlayingSound) {
@@ -191,13 +194,19 @@ function timerApp() {
       if (timer.interval) {
         return;
       } else {
+
+        if (timer.isPaused) {
+          this.log(timer, 'resume');
+        } else {
+          this.log(timer, 'start');
+        }
+
         timer.isPlaying = true;
         timer.isPaused = false;
         timer.isPlayingSound = false;
         timer.endsAt = Date.now() + ( timer.timeLeft * 1000 );
         timer.endsAtFormatted = this.getFormattedEndsAt(timer);
 
-        this.log(timer, 'start');
       }
 
       const timerEl = document.querySelector(`[data-id='${timer.id}']`);
@@ -245,6 +254,13 @@ function timerApp() {
     },
 
     hardResetTimer(timer) {
+
+      if( timer.isPlayingSound) {
+        this.log(timer, 'alarmOff');
+      } else {
+        this.log(timer, 'stop');
+      }
+
       if (timer.interval) {
         clearInterval(timer.interval);
         timer.interval = null;
@@ -256,8 +272,6 @@ function timerApp() {
       timer.endsAtFormatted = null;
       timer.isPlayingSound = false;
       timer.isNegative = false;
-
-      this.log(timer, 'stop');
     },
 
     getFormattedEndsAt(timer) {
@@ -319,6 +333,7 @@ function timerApp() {
     removeTimer(index) {
       if(confirm('Are you sure you want to delete this timer?')) {
         const timer = this.timers[index];
+        this.clearTimerLogs(timer.id);
         if (timer.interval) {
           clearInterval(timer.interval);
           timer.interval = null;
@@ -333,14 +348,7 @@ function timerApp() {
           localStorage.removeItem('timers');
         }
 
-        this.clearTimerLogs(timer);
       } 
-    },
-
-    clearTimerLogs(timer){
-      const timerId = timer.id;
-      this.logs = this.logs.filter(log => log.timerId !== timerId);
-      this.saveLogs();
     },
 
     log(timer, action) {
@@ -348,19 +356,22 @@ function timerApp() {
       let msg = '';
       switch (action) {
         case 'add':
-          msg = `Added timer: ${timer.name} (${timer.duration} ${timer.unit})`;
+          msg = `Created`;
           break;
         case 'start':
-          msg = `Started timer: ${timer.name}`;
+          msg = `Played`;
           break;
         case 'pause':
-          msg = `Paused timer: ${timer.name}`;
+          msg = `Paused`;
           break;
         case 'resume':
-          msg = `Resumed timer: ${timer.name}`;
+          msg = `Resumed`;
           break;
         case 'stop':
-          msg = `Stopped timer: ${timer.name}`;
+          msg = `Stopped`;
+          break;
+        case 'alarmOff':
+          msg = `Turned off`;
           break;
         default:
           msg = `Unknown action: ${action}`;
@@ -373,6 +384,11 @@ function timerApp() {
         msg: msg,
         timerId: timer.id,
       });
+    },
+
+    clearTimerLogs(timerId) {
+      this.logs = this.logs.filter(log => log.timerId !== timerId);
+      this.saveLogs();
     },
 
     saveLogs() {
