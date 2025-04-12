@@ -14,34 +14,6 @@ body {
   padding: 0;
 }
 
-.progress-container {
-  width: 106.5%;
-  height: 129.3%;
-  top: -15px;
-  left: -21px;
-  overflow: hidden;
-  z-index: -1;
-  position: absolute;
-  border-radius: 0.5rem;
-}
-
-svg.progress {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  position: absolute;
-  stroke-dasharray: 400;
-  stroke-width: 6px;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 0.3s linear;
-  z-index: -1;
-}
-
-svg.progress rect {
-  width: 100%;
-  height: 100%;
-}
-
 .log-item {
   position: relative;
   margin-left: 24px;
@@ -52,7 +24,7 @@ svg.progress rect {
   content: '';
   display: inline-block;
   width: 2px;
-  height: 32px;
+  height: 155%;
   background: rgb(140 140 140);
   position: absolute;
   top: -5px;
@@ -63,6 +35,29 @@ svg.progress rect {
 .controls-container {
   height: auto;
   aspect-ratio: 1;
-  min-width: 104px;
+  width: 104px;
   padding: 12px;
+  position: relative;
 }
+
+.progress-ring {
+  position: absolute;
+  transform: rotate(-90deg);
+}
+
+.progress-ring__bg {
+  fill: none;
+  stroke: rgb(229 231 235);
+  stroke-width: 6;
+}
+
+.progress-ring__circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 6;
+  stroke-dasharray: 339.29;
+  stroke-dashoffset: 339.29;
+  transition: stroke-dashoffset 0.35s;
+  stroke-linecap: round;
+}
+
