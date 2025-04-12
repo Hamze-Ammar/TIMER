@@ -178,7 +178,7 @@ function timerApp() {
 
     stopAlarm(timer) {
       if (timer.isPlayingSound) {
-        this.stopSound(timer.sound);
+        this.stopSound(timer);
       }
       this.hardResetTimer(timer);
     },
@@ -217,17 +217,13 @@ function timerApp() {
 
       const circle = timerEl.querySelector(".progress-ring__circle");
       const radius = circle.r.baseVal.value;
-      console.log('radius', radius);
       
       const circumference = 2 * Math.PI * radius;
-      console.log('circumference', circumference);
-      
       circle.style.strokeDasharray = `${circumference}`;
       circle.style.strokeDashoffset = `${circumference}`;
 
       function setProgress(percent) {
         const offset = circumference - (percent / 100) * circumference;
-        console.log('offset', offset);
         
         circle.style.strokeDashoffset = circumference - offset;
       }
@@ -243,7 +239,7 @@ function timerApp() {
         } else if( !timer.isPlayingSound) {
           timer.isPlaying = false;
           timer.isPlayingSound = true;
-          this.playSound(timer.sound);
+          this.playSound(timer);
         }
 
         if( timer.timeLeft < 0 && !timer.isNegative) {
@@ -301,32 +297,42 @@ function timerApp() {
       }
     },
 
-    playSound(sound) {
-      const audio = document.getElementById(sound.split('.')[0]);
+    playSound(timer) {
+      const sound = timer.sound
+      const original = document.getElementById(sound.split('.')[0]);
 
-      if (audio) {
-        if (audio.dataset.loop === "true") {
-          // If already playing in loop, pause and reset
-          audio.pause();
-          audio.currentTime = 0;
-          audio.dataset.loop = "false";
-        } else {
-          // Play in loop
-          audio.loop = true;
-          audio.play();
-          audio.dataset.loop = "true";
+      if (timer.audio) {
+        const checkAudioEl = document.getElementById(timer.audio);
+        if (checkAudioEl) {
+          checkAudioEl.remove();
         }
       }
+        
+      const clone = original.cloneNode(true);
+
+      // Set the id to the timer id
+      const id = `${sound.split('.')[0]}-${timer.id}`;
+      clone.id = id;
+      timer.audio = id;
+      clone.dataset.id = timer.id;
+
+      clone.dataset.loop = "true";
+      clone.loop = true;
+      clone.play();
+      document.body.appendChild(clone);
     },
 
-    stopSound(sound) {
-      const audio = document.getElementById(sound.split('.')[0]);
+    stopSound(timer) {
+      const sound = timer.sound
+      const audioId = `${sound.split('.')[0]}-${timer.id}`;
+      const audio = document.getElementById(audioId);
 
       if (audio) {
         audio.pause();
         audio.currentTime = 0;
         audio.loop = false;
         audio.dataset.loop = "false";
+        audio.remove();
       }
     },
 
@@ -339,7 +345,7 @@ function timerApp() {
           timer.interval = null;
         }
         if (timer.isPlayingSound) {
-          this.stopSound(timer.sound);
+          this.stopSound(timer);
           timer.isPlayingSound = false;
         }
         this.timers.splice(index, 1);
