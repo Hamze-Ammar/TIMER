@@ -59,3 +59,10 @@ svg.progress rect {
   left: -23px;
 
 }
+
+.controls-container {
+  height: auto;
+  aspect-ratio: 1;
+  min-width: 104px;
+  padding: 12px;
+}
