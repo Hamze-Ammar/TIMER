@@ -343,10 +343,10 @@
           <!-- logs -->
           <div x-show="timer.showLogs" x-cloak x-transition>
             <div class="rounded mt-4 p-4 text-gray-700 text-sm relative bg-gray-100 max-h-96 overflow-y-auto">
-              <div class="absolute right-2 top-2 p-1 z-10 flex items-center gap-2">
+              <div class="absolute right-2 top-2 p-1 z-10 flex items-center gap-4">
 
                 <!-- Clear logs -->
-                <button class="rounded hover:scale-105" @click="clearTimerLogs(timer.id)">
+                <button class="rounded hover:scale-105" @click="clearTimerLogsConfirm(timer.id)">
                   <span class="sr-only">Clear logs</span>
                   <span class="w-5 h-5 inline-block text-gray-600 hover:text-gray-800">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"

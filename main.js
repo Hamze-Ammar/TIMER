@@ -393,6 +393,12 @@ function timerApp() {
       this.saveLogs();
     },
 
+    clearTimerLogsConfirm(timerId) {
+      if (confirm('Are you sure you want to delete all logs for this timer?')) {
+        this.clearTimerLogs(timerId);
+      }
+    },
+
     saveLogs() {
       localStorage.setItem('timersLogs', JSON.stringify(this.logs));
     }
