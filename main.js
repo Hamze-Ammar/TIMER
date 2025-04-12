@@ -394,7 +394,7 @@ function timerApp() {
     },
 
     clearTimerLogsConfirm(timerId) {
-      if (confirm('Are you sure you want to delete all logs for this timer?')) {
+      if (confirm('You are deleting all the logs!')) {
         this.clearTimerLogs(timerId);
       }
     },
