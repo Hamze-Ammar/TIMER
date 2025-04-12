@@ -72,8 +72,6 @@ function timerApp() {
     },
 
     closeResumeModal() {
-      console.log('closeResumeModal');
-      
       this.requestResume = false;
     },
 
@@ -100,8 +98,6 @@ function timerApp() {
     },
 
     addTimer() {
-      console.log('Adding timer:', this.newTimer);
-      
       if (!this.newTimer.name) {
         this.newTimer.name = 'TIMER NAME';
       };
