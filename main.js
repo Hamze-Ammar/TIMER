@@ -167,6 +167,12 @@ function timerApp() {
       this.log(timer, 'add');
     },
 
+    formatDate(timestamp) {
+      const date = new Date(timestamp);
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      return date.toLocaleDateString('en-US', options);
+    },
+
     stopAlarm(timer) {
       if (timer.isPlayingSound) {
         this.stopSound(timer.sound);
@@ -199,18 +205,31 @@ function timerApp() {
         console.error('Timer element not found');
         return;
       }
-      const timerProgress = timerEl.querySelector('svg.progress');
+
+      const circle = timerEl.querySelector(".progress-ring__circle");
+      const radius = circle.r.baseVal.value;
+      console.log('radius', radius);
       
+      const circumference = 2 * Math.PI * radius;
+      console.log('circumference', circumference);
+      
+      circle.style.strokeDasharray = `${circumference}`;
+      circle.style.strokeDashoffset = `${circumference}`;
+
+      function setProgress(percent) {
+        const offset = circumference - (percent / 100) * circumference;
+        console.log('offset', offset);
+        
+        circle.style.strokeDashoffset = circumference - offset;
+      }
+      setProgress((timer.timeLeft / timer.duration) * 100);
+
+
       timer.interval = setInterval(() => {
         timer.timeLeft--;
         if (timer.timeLeft >= 0) {
 
-          const totalTime = timer.duration;
-          const timeLeft = timer.timeLeft;
-          const percent = (timeLeft / totalTime) * 100;
-          const strokeDasharray = 400;
-          const strokeDashoffset = strokeDasharray - (percent / 100) * strokeDasharray;
-          timerProgress.style.strokeDashoffset = strokeDashoffset;
+          setProgress((timer.timeLeft / timer.duration) * 100);
           
         } else if( !timer.isPlayingSound) {
           timer.isPlaying = false;
