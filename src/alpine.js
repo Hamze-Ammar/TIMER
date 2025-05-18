@@ -1,9 +1,19 @@
-function timerApp() {
+export function timerApp() {
   return {
     showAddTimer: false,
     requestResume: false,
     timers: [],
     logs: [],
+    textColorContrast: {
+      'gray': 'gray-50',
+      'red': 'gray-900',
+      'green': 'gray-700',
+      'yellow': 'gray-700',
+      'purple': 'gray-950',
+      'pink': 'gray-900',
+      'orange': 'gray-800',
+      'teal': 'gray-800',
+    },
     newTimer: {
       id: null,
       name: '',

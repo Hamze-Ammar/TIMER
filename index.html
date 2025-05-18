@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timer App</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/alpinejs" defer></script>
-  <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="bg-gray-100 min-h-screen p-6">
+<body class="bg-gray-100 min-h-screen p-6 text-gray-900">
 
 
-  <div x-data="timerApp()" class="max-w-2xl mx-auto">
+  <div x-data="timerApp()" class="max-w-2xl mx-auto p-3">
 
     <div x-cloak x-show="requestResume" x-cloak x-transition
       class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
@@ -139,23 +135,23 @@
             class="rounded-lg text-white relative flex flex-col  gap-6 sm:gap-0 sm:flex-row justify-between items-center border-4 border-transparent"
             x-transition>
 
-            <div class="p-0 group w-full sm:w-1/3">
+            <div class="p-0 group w-full sm:w-1/3" >
               <div class="flex justify-between items-baseline sm:flex-col">
                 <div>
                   <div class="flex items-center gap-3">
-                    <h2 class="text-xl font-semibold truncate" x-text="timer.name"></h2>
+                    <h2 class="text-xl font-semibold truncate" :class="`text-${textColorContrast[timer.color]}`" x-text="timer.name"></h2>
                   </div>
 
-                  <p class="text-gray-200 font-normal text-xs">
+                  <p class="font-medium text-xs" :class="`text-${textColorContrast[timer.color]}`">
                     <span x-text="timer.durationInitial"></span> <span x-text="singularizeUnit(timer)"></span>
                   </p>
-                  <p class="text-gray-200 font-normal text-xs">Sound: <span x-text="timer.sound"></span></p>
+                  <p class="font-medium text-xs" :class="`text-${textColorContrast[timer.color]}`">Sound: <span x-text="timer.sound"></span></p>
                 </div>
 
                 <div class="flex items-center gap-2 mt-2">
                   <button @click="removeTimer(index)" class="inline-flex rounded hover:scale-105">
                     <span class="sr-only">Remove</span>
-                    <span class="w-5 h-5 inline-block text-gray-200 hover:text-gray-300">
+                    <span class="w-5 h-5 inline-block  hover:text-gray-300" :class="`text-${textColorContrast[timer.color]}`">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
                         <g id="SVGRepo_bgCarrier" stroke-width="0" />
                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
@@ -174,7 +170,7 @@
                   <!-- show logs button -->
                   <button @click="timer.showLogs = !timer.showLogs" class="inline-flex rounded hover:scale-105">
                     <span class="sr-only">Logs</span>
-                    <span class="w-5 h-5 inline-block text-white text-gray-200 hover:text-gray-300">
+                    <span class="w-5 h-5 inline-block hover:text-gray-300" :class="`text-${textColorContrast[timer.color]}`">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
 
                         <g id="SVGRepo_bgCarrier" stroke-width="0" />
@@ -197,9 +193,9 @@
 
             <div class="flex items-center sm:justify-end flex-1 w-full sm:w-auto gap-4 sm:gap-0">
               <div x-cloak x-show="timer.isPlaying || timer.isPaused || timer.isPlayingSound"
-                class="flex flex-col items-baseline w-full sm:w-1/3 flex-1 min-w-fit">
+                class="flex flex-col items-baseline w-full sm:w-1/3 flex-1 min-w-fit" :class="`text-${textColorContrast[timer.color]}`">
                 <p class="text-lg sm:text-xl font-bold font-mono">
-                  <span class="w-4 h-4 inline-block text-gray-200"
+                  <span class="w-4 h-4 inline-block " :class="`text-${textColorContrast[timer.color]}`"
                     :class="timer.isPlaying ? 'animate-pulse' : timer.isNegative ? 'animate-ping' : ''">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                       fill="currentColor" version="1.1" id="Capa_1" viewBox="0 0 473.068 473.068" xml:space="preserve"
@@ -222,9 +218,9 @@
                       </g>
                     </svg>
                   </span>
-                  <span x-text="formatTime(timer.timeLeft)"></span>
+                  <span x-text="formatTime(timer.timeLeft)" :class="`text-${textColorContrast[timer.color]}`"></span>
                 </p>
-                <p class="text-xs sm:text-sm font-mono text-gray-300">
+                <p class="text-xs sm:text-sm font-mono">
                   <span x-text="timer.endsAtFormatted"></span>
                 </p>
               </div>
@@ -416,8 +412,7 @@
   <audio id="ping" src="sounds/ping.wav"></audio>
 
   <!-- Include import ./main.js -->
-  <script src="./main.js"></script>
-
+  <script type="module" src="/src/main.js" defer></script>
 </body>
 
 </html>

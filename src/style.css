@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Red */
+@source inline("{hover:,}bg-red-{50,{100..900..100},950}");
+@source inline("{hover:,}text-red-{50,{100..900..100},950}");
+@source inline("{hover:,}border-red-{50,{100..900..100},950}");
+/* Blue */
+@source inline("{hover:,}bg-blue-{50,{100..900..100},950}");
+@source inline("{hover:,}text-blue-{50,{100..900..100},950}");
+@source inline("{hover:,}border-blue-{50,{100..900..100},950}");
+/* Teal */
+@source inline("{hover:,}bg-teal-{50,{100..900..100},950}");
+@source inline("{hover:,}text-teal-{50,{100..900..100},950}");
+@source inline("{hover:,}border-teal-{50,{100..900..100},950}");
+/* Pink */
+@source inline("{hover:,}bg-pink-{50,{100..900..100},950}");
+@source inline("{hover:,}text-pink-{50,{100..900..100},950}");
+@source inline("{hover:,}border-pink-{50,{100..900..100},950}");
+/* Yellow */
+@source inline("{hover:,}bg-yellow-{50,{100..900..100},950}");
+@source inline("{hover:,}text-yellow-{50,{100..900..100},950}");
+@source inline("{hover:,}border-yellow-{50,{100..900..100},950}");
+/* Orange */
+@source inline("{hover:,}bg-orange-{50,{100..900..100},950}");
+@source inline("{hover:,}text-orange-{50,{100..900..100},950}");
+@source inline("{hover:,}border-orange-{50,{100..900..100},950}");
+/* Green */
+@source inline("{hover:,}bg-green-{50,{100..900..100},950}");
+@source inline("{hover:,}text-green-{50,{100..900..100},950}");
+@source inline("{hover:,}border-green-{50,{100..900..100},950}");
+/* Gray */
+@source inline("{hover:,}bg-gray-{50,{100..900..100},950}");
+@source inline("{hover:,}text-gray-{50,{100..900..100},950}");
+@source inline("{hover:,}border-gray-{50,{100..900..100},950}");
+/* Purple */
+@source inline("{hover:,}bg-purple-{50,{100..900..100},950}");
+@source inline("{hover:,}text-purple-{50,{100..900..100},950}");
+@source inline("{hover:,}border-purple-{50,{100..900..100},950}");
+
+@import "./mycss.css";
